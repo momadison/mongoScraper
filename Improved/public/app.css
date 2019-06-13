@@ -1,0 +1,9 @@
+.save {
+   float: right;
+   width: 150px;
+   height: 40px;
+   padding: 1px, 1px, 1px, 1px;
+   line-height: 10px;
+   color: #fff;
+   font-weight: bold;
+}
