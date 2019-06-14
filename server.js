@@ -1,111 +1,146 @@
-require("dotenv").config();
-const express = require("express");
-const exphbs = require("express-handlebars");
-const logger = require("morgan");
-const mongoose = require("mongoose");
+var express = require("express");
+var logger = require("morgan");
+var mongoose = require("mongoose");
 
-// Scraping Tools
-const cheerio = require("cheerio");
-const axios = require("axios")
+// Our scraping tools
+// Axios is a promised-based http library, similar to jQuery's Ajax method
+// It works on the client and on the server
+var axios = require("axios");
+var cheerio = require("cheerio");
 
 // Require all models
 var db = require("./models");
 
-//Initialize express
-const app = express();
-var PORT = process.env.PORT || 3030;
+var PORT = 3000;
 
-// Middleware
+// Initialize Express
+var app = express();
+
+// Configure middleware
+
 // Use morgan logger for logging requests
 app.use(logger("dev"));
 // Parse request body as JSON
-app.use(express.urlencoded({ extended: false }));
+app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 // Make public a static folder
 app.use(express.static("public"));
 
-// Handlebars
-app.engine(
-  "handlebars",
-  exphbs({
-    defaultLayout: "main"
-  })
-);
-app.set("view engine", "handlebars");
-
 // Connect to the Mongo DB
-mongoose.connect("mongodb://localhost/articleDB", { useNewUrlParser: true});
+mongoose.connect("mongodb://localhost/articleDB", { useNewUrlParser: true });
 
 // Routes
-//Scrape data and put it into the mongoDB
+
+// A GET route for scraping the echoJS website
 app.get("/scrape", function(req, res) {
-
+  // First, we grab the body of the html with axios
   axios.get("https://www.nytimes.com").then(function(response) {
-  //Load the response into cheerio and save it to the '$' variable
-  const $ = cheerio.load(response.data);
-  
-  //Use Cheerio to get data
-  $("article").each((i, element) => {
+    // Then, we load that into cheerio and save it to $ for a shorthand selector
+    var $ = cheerio.load(response.data);
 
-    //Create an empty array to save our data 
-    const results = [];
+    db.Article.remove({saved: false}).then((data)=> {
+      console.log("DATA INFO: ", data);
+    });
+    // Now, we grab every h2 within an article tag, and do the following:
+    $("article").each(function(i, element) {
+      // Save an empty result object
+      var results = {};
 
-    results.title = $(element)
+      // Add the text and href of every link, and save them as properties of the result object
+      results.title = $(element)
       .find('span')
       .text()
        || $(element)
       .find('h2')
       .text();
-    results.link = $(element)
+      results.link = $(element)
       .find('a')
       .attr("href");
-    results.description = $(element)
+      results.description = $(element)
       .find('ul')
       .text() 
       || $(element)
       .find('p')
       .text();
 
-    if (results.title && results.link && results.description) {
+      // Create a new Article using the `result` object built from scraping
       db.Article.create(results)
-        .then((created) => {
-          console.log(results);
-          console.log(created);
+        .then(function(dbArticle) {
+          // View the added result in the console
+          // console.log("ADDED TO DB: ",dbArticle);
         })
-        .catch((err) => {
+        .catch(function(err) {
+          // If an error occurred, log it
           console.log(err);
         });
-    }
     });
+
+    // Send a message to the client
     res.send("Scrape Complete");
-})
+  });
 });
 
-app.get("/articles", (req, res) => {
-  db.Article.find({})
-    .then((articles) => {
-      res.json(articles);
-    })
-    .catch((err) => {
-      res.json(err);
-    })
+app.get("/savedArticles", (req, res) => {
+  db.Article.find({saved: true}).then((savedArticles) => {
+    res.json(savedArticles);
+  });
 })
 
-var syncOptions = { force: false };
-// If running a test, set syncOptions.force to true
-// clearing the `testdb`
-if (process.env.NODE_ENV === "test") {
-  syncOptions.force = true;
-}
-// Starting the server, syncing our models ------------------------------------/
-// db.sequelize.sync(syncOptions).then(function() {
-  app.listen(PORT, function() {
-    console.log(
-      "==> 🌎  Listening on port %s. Visit http://localhost:%s/ in your browser.",
-      PORT,
-      PORT
-    );
-  });
+// Route for getting all Articles from the db
+app.get("/articles", function(req, res) {
+  // Grab every document in the Articles collection
+  db.Article.find({})
+    .then(function(dbArticle) {
+      // If we were able to successfully find Articles, send them back to the client
+      res.json(dbArticle);
+    })
+    .catch(function(err) {
+      // If an error occurred, send it to the client
+      res.json(err);
+    });
+});
+
+// Route for getting all Articles from the db
+app.get("/savedArticles", function(req, res) {
+  // Grab every document in the Articles collection
+  db.Article.find({saved: true})
+    .then(function(dbArticle) {
+      // If we were able to successfully find Articles, send them back to the client
+      res.json(dbArticle);
+    })
+    .catch(function(err) {
+      // If an error occurred, send it to the client
+      res.json(err);
+    });
+});
+
+// Route for grabbing a specific Article by id, populate it with it's note
+app.get("/articles/:id", function(req, res) {
+  // Using the id passed in the id parameter, prepare a query that finds the matching one in our db...
+  db.Article.find({ _id: req.params.id })
+    
+    .then(function(dbArticle) {
+      // If we were able to successfully find an Article with the given id, send it back to the client
+      res.json(dbArticle);
+    })
+    .catch(function(err) {
+      // If an error occurred, send it to the client
+      res.json(err);
+    });
+});
 
 
-module.exports = app;
+app.put("/articles/:id/:bool", (req, res) => {
+  db.Article.findByIdAndUpdate(
+    {_id: req.params.id}, {$set: {saved: req.params.bool}}, (err, todo) => {
+    if (err) return res.status(500).send(err);
+    return res.send(todo);
+  })
+})
+
+
+
+// Start the server
+app.listen(PORT, function() {
+  console.log("App running on port " + PORT + "!");
+});

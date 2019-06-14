@@ -6,7 +6,7 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/4.0.0/materia/bootstrap.min.css"/>
     <link href="https://fonts.googleapis.com/css?family=Cormorant+SC" rel="stylesheet">
-    <link rel="stylesheet" href="./styles/styles.css">  
+    <link rel="stylesheet" href="app.css" />
     <title>Mongo Scraper</title>
 </head>
 <body>
@@ -24,13 +24,13 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="/saved">Saved Articles</a>
+                    <a class="btn btn-danger text-white" id="saved">Saved Articles</a>
                 </li>
                 <li class="nav-item">
-                    <a class="btn btn-danger scrape-new">SCRAPE NEW ARTICLES!</a>
+                    <a class="btn btn-danger text-white" id="scrapeNew">SCRAPE NEW ARTICLES!</a>
                 </li>
                 <li class="nav-item">
-                    <a class="btn btn-danger clear">CLEAR ARTICLES!</a>
+                    <a class="btn btn-danger clear text-white">CLEAR ARTICLES!</a>
                 </li>
             </ul>
         </div>
@@ -47,15 +47,6 @@
 
     <div class="container-fluid article-container">
 
-            <div data-_id="5cfd21157839e500155f6903" class="card">
-                    <div class="card-header">
-                      <h3>
-                        <a class="article-link" target="_blank" rel="noopener noreferrer" href="https://www.nytimes.com/2019/06/08/books/raphael-bob-waksberg-bojack-horseman.html">Coming to You From a Can of Cashews</a>
-                        <a class="btn btn-success save">Save Article</a>
-                      </h3>
-                    </div>
-                    <div class="card-body">Raphael Bob-Waksberg, the creator of “BoJack Horseman,” makes his book debut with “Someone Who Will Love You in All Your Damaged Glory.”</div>
-                  </div>
 
     </div>
 
@@ -68,7 +59,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootbox.js/4.4.0/bootbox.min.js"></script>
-    <script src="./js/index.js"></script>
+    <script src="./app.js"></script>
           
     
 </body>

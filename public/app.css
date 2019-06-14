@@ -1,0 +1,47 @@
+.save {
+   float: right;
+   width: 150px;
+   height: 40px;
+   padding: 1px, 1px, 1px, 1px;
+   line-height: 10px;
+   color: #fff;
+   font-weight: bold;
+}
+
+.btn {
+    float: right;
+    width: 150px;
+    height: 40px;
+    line-height: 10px;
+    margin: 5px;
+    font-weight: bolder;
+}
+
+.card {
+    margin: 10px;
+}
+
+a{
+    font-weight: bold;
+}
+
+.jumbotron {
+    background-image: url("https://www.connections.be/~/media/images/connections/vliegtickets/noord-amerika/new-york/nybrooklynbridge.jpg");
+    background-repeat: no-repeat;
+    background-size: 100%;
+    color: #fff;
+    font-weight: bolder;
+    font-size: 35px;
+}
+
+.footer {
+    background: black;
+    color: #fff;
+    position: fixed;
+    bottom: 0px;
+    width: 100%;
+}
+
+#scrapeNew {
+    width: 250px;
+}
